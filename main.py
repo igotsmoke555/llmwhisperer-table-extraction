@@ -59,8 +59,9 @@ def error_exit(error_message):
     sys.exit(1)
 
 
-def extract_text_from_pdf(file_path, pages_list=None):
+def extract_text_from_pdf(file_path, pages_list=None): #use llm whisperer to extract
     llmw = LLMWhispererClient()
+
     try:
         result = llmw.whisper(file_path=file_path, pages_to_extract=pages_list)
         extracted_text = result["extracted_text"]
@@ -93,6 +94,7 @@ def compile_template_and_get_llm_response(preamble, extracted_text, pydantic_obj
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
 
     parser = PydanticOutputParser(pydantic_object=pydantic_object)
+    print(parser.get_format_instructions())
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
     request = chat_prompt.format_prompt(preamble=preamble,
                                         format_instructions=parser.get_format_instructions(),
@@ -152,6 +154,7 @@ def process_receipt(use_llamaparse=False):
     response = extract_receipt_details_from_text(extracted_text)
     print(response)
 
+
 def main():
     load_dotenv()
     if len(sys.argv) > 1 and sys.argv[1] == "llamaparse":
@@ -159,9 +162,10 @@ def main():
         process_financial_statement(use_llamaparse=True)
         process_receipt(use_llamaparse=True)
     else:
-        process_cc_statement()
+        #process_cc_statement()
         process_financial_statement()
-        process_receipt()
+        #process_receipt()
+
 
 if __name__ == "__main__":
     main()
